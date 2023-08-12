@@ -8,8 +8,8 @@ open class MovementEntity(var body:RigidActor,var currentProgram: MovementProgra
     var programsList= mutableMapOf<String, MovementProgram>()
     //position and speed variables
     var movementVelocity=MutableVec3f(0f,0f,0f)
-    var maxSpeed=50f
-    var maxAcceleration=10f
+    var maxSpeed=10f
+    var maxAcceleration=40f
 
     init {
         currentProgram?.let {

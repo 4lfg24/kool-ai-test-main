@@ -17,10 +17,7 @@ import de.fabmax.kool.util.Color
 import de.fabmax.kool.util.MdColor
 import de.fabmax.kool.util.Time
 import de.fabmax.kool.util.debugOverlay
-import movement.ArriveProgram
-import movement.FleeProgram
-import movement.SeekProgram
-import movement.TestMovementEntity
+import movement.*
 
 /**
  * Main application entry. This demo creates a small example scene, which you probably want to replace by your actual
@@ -33,10 +30,10 @@ class AiTester {
     lateinit var entity1: TestMovementEntity
     lateinit var entity2: TestMovementEntity
     var entity1Vel = MutableVec3f()
-
+    //path for the follow path program
+    var path= mutableListOf(Vec3f(0f, 10f, 25f), Vec3f(30f, 10f, 0f), Vec3f(-20f, 10f, -30f))
     fun aiTest(ctx: KoolContext) {
         //load world
-
         ctx.scenes += scene {
             //load physics world
             loadPhysicsWorld()
@@ -78,28 +75,42 @@ class AiTester {
                     Text("Press S to activate Seek Program") {
                         modifier
                             .alignX(AlignmentX.Start)
-                            .margin(30.dp)
+                            .margin(15.dp)
                     }
                 }
                 Row {
                     Text("Press F to activate Flee Program") {
                         modifier
                             .alignX(AlignmentX.Start)
-                            .margin(30.dp)
+                            .margin(15.dp)
                     }
                 }
                 Row {
                     Text("Press A to activate Arrive Program") {
                         modifier
                             .alignX(AlignmentX.Start)
-                            .margin(30.dp)
+                            .margin(15.dp)
+                    }
+                }
+                Row {
+                    Text("Press P to activate follow path Program"){
+                        modifier
+                            .alignX(AlignmentX.Start)
+                            .margin(15.dp)
+                    }
+                }
+                Row {
+                    Text("Press M to activate follow match speed Program"){
+                        modifier
+                            .alignX(AlignmentX.Start)
+                            .margin(15.dp)
                     }
                 }
                 Row {
                     Text("Use the arrow keys to move the character") {
                         modifier
                             .alignX(AlignmentX.Start)
-                            .margin(30.dp)
+                            .margin(15.dp)
                     }
                 }
             }
@@ -175,11 +186,15 @@ class AiTester {
         val seek=SeekProgram(entity2, entity1)
         val flee=FleeProgram(entity2, entity1)
         val arrive=ArriveProgram(entity2, entity1)
+        val followPath=FollowPathProgram(path, entity2, true)
+        val matchSpeed=MatchSpeedProgram(entity2, entity1)
         entity2.programsList[flee.id] = flee
         entity2.programsList[arrive.id]=arrive
         entity2.programsList[seek.id]=seek
+        entity2.programsList[followPath.id]=followPath
+        entity2.programsList[matchSpeed.id]=matchSpeed
 
-        entity2.currentProgram = seek
+        entity2.currentProgram =followPath
         //code to switch to the different programs
         KeyboardInput.addKeyListener(UniversalKeyCode('s'), "Activate seek", {true}){
             if (it.isPressed){
@@ -194,6 +209,16 @@ class AiTester {
         KeyboardInput.addKeyListener(UniversalKeyCode('a'), "Activate seek", {true}){
             if (it.isPressed){
                 entity2.currentProgram= entity2.programsList["Arrive"]
+            }
+        }
+        KeyboardInput.addKeyListener(UniversalKeyCode('m'), "Activate match speed", {true}){
+            if (it.isPressed){
+                entity2.currentProgram= entity2.programsList["Match Speed"]
+            }
+        }
+        KeyboardInput.addKeyListener(UniversalKeyCode('p'), "Activate follow path", {true}){
+            if (it.isPressed){
+                entity2.currentProgram= entity2.programsList["Follow Path"]
             }
         }
     }
