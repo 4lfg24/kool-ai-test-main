@@ -1,7 +1,6 @@
 package movement
 
 import de.fabmax.kool.math.MutableVec3f
-import kotlin.math.sqrt
 
 class ArriveProgram(var seeker:MovementEntity, var target:MovementEntity):MovementProgram("Arrive") {
 
@@ -29,4 +28,5 @@ class ArriveProgram(var seeker:MovementEntity, var target:MovementEntity):Moveme
         }
 
     }
+
 }

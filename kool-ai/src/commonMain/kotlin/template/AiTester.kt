@@ -39,6 +39,8 @@ class AiTester {
             loadPhysicsWorld()
             //create two bodies for testing
             loadEntities()
+            //draw path points
+            loadPathPoints()
             mainRenderPass.clearColor= Color.CYAN
             camera.apply {
                 position.set(0f, 100f, 10f)
@@ -67,7 +69,7 @@ class AiTester {
         setupUiScene()
             Panel {
                 with(modifier){
-                    size(400.dp, 300.dp)
+                    size(400.dp, 400.dp)
                     align(AlignmentX.End, AlignmentY.Top)
                     background(RoundRectBackground(colors.background, 16.dp))
                 }
@@ -107,12 +109,68 @@ class AiTester {
                     }
                 }
                 Row {
+                    Text("Press R to activate random movement") {
+                        modifier
+                            .alignX(AlignmentX.Start)
+                            .margin(15.dp)
+                    }
+                }
+                Row {
                     Text("Use the arrow keys to move the character") {
                         modifier
                             .alignX(AlignmentX.Start)
                             .margin(15.dp)
                     }
                 }
+                Row {
+                    Text("(Yellow spheres represents path points)") {
+                        modifier
+                            .alignX(AlignmentX.Start)
+                            .margin(15.dp)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun Scene.loadPathPoints() {
+        //creating first path point mesh
+        colorMesh {
+            generate {
+                color = MdColor.YELLOW
+                icoSphere {
+                    radius=1f
+                    center.set(path[0])
+                }
+            }
+            shader = KslPbrShader {
+                color { vertexColor() }
+            }
+        }
+        //creating second path point mesh
+        colorMesh {
+            generate {
+                color = MdColor.YELLOW
+                icoSphere {
+                    radius=1f
+                    center.set(path[1])
+                }
+            }
+            shader = KslPbrShader {
+                color { vertexColor() }
+            }
+        }
+        //creating third path point mesh
+        colorMesh {
+            generate {
+                color = MdColor.YELLOW
+                icoSphere {
+                    radius=1f
+                    center.set(path[2])
+                }
+            }
+            shader = KslPbrShader {
+                color { vertexColor() }
             }
         }
     }
@@ -188,13 +246,15 @@ class AiTester {
         val arrive=ArriveProgram(entity2, entity1)
         val followPath=FollowPathProgram(path, entity2, true)
         val matchSpeed=MatchSpeedProgram(entity2, entity1)
+        val randomMovement=RandomMovementProgram(entity2)
         entity2.programsList[flee.id] = flee
         entity2.programsList[arrive.id]=arrive
         entity2.programsList[seek.id]=seek
         entity2.programsList[followPath.id]=followPath
         entity2.programsList[matchSpeed.id]=matchSpeed
+        entity2.programsList[randomMovement.id]=randomMovement
 
-        entity2.currentProgram =followPath
+        entity2.currentProgram =seek
         //code to switch to the different programs
         KeyboardInput.addKeyListener(UniversalKeyCode('s'), "Activate seek", {true}){
             if (it.isPressed){
@@ -219,6 +279,11 @@ class AiTester {
         KeyboardInput.addKeyListener(UniversalKeyCode('p'), "Activate follow path", {true}){
             if (it.isPressed){
                 entity2.currentProgram= entity2.programsList["Follow Path"]
+            }
+        }
+        KeyboardInput.addKeyListener(UniversalKeyCode('r'), "Activate random movement", {true}){
+            if (it.isPressed){
+                entity2.currentProgram= entity2.programsList["Random"]
             }
         }
     }
