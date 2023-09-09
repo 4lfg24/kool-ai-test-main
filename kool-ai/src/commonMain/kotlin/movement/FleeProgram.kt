@@ -2,6 +2,10 @@ package movement
 
 import de.fabmax.kool.math.MutableVec3f
 
+/**
+ * This program does the opposite of the SeekProgram, it moves the fleer
+ * away from the pursuer as fast as its maxAcceleration allows it
+ */
 class FleeProgram(var fleer:MovementEntity, var pursuer:MovementEntity):MovementProgram("Flee") {
 
     //the distance after which the fleer will start decelerating

@@ -3,6 +3,7 @@ package template
 import de.fabmax.kool.KoolContext
 import de.fabmax.kool.input.KeyboardInput
 import de.fabmax.kool.input.UniversalKeyCode
+import de.fabmax.kool.math.MutableVec3d
 import de.fabmax.kool.math.MutableVec3f
 import de.fabmax.kool.math.Vec3f
 import de.fabmax.kool.modules.ksl.KslPbrShader
@@ -41,12 +42,15 @@ class AiTester {
             loadEntities()
             //draw path points
             loadPathPoints()
+            //draw surround path points
+            //loadSurroundPoints()
             mainRenderPass.clearColor= Color.CYAN
             camera.apply {
                 position.set(0f, 100f, 10f)
                 clipNear = 0.5f
                 clipFar = 500f
                 lookAt.set(Vec3f(0f, 0f, 0f))
+
             }
 
             // set up a single light source
@@ -60,6 +64,7 @@ class AiTester {
                 entity1.applyMovement()
                 entity2.currentProgram?.calculateMovement()
                 entity2.applyMovement()
+
             }
         }
 
@@ -69,7 +74,7 @@ class AiTester {
         setupUiScene()
             Panel {
                 with(modifier){
-                    size(400.dp, 400.dp)
+                    size(400.dp, 450.dp)
                     align(AlignmentX.End, AlignmentY.Top)
                     background(RoundRectBackground(colors.background, 16.dp))
                 }
@@ -110,6 +115,13 @@ class AiTester {
                 }
                 Row {
                     Text("Press R to activate random movement") {
+                        modifier
+                            .alignX(AlignmentX.Start)
+                            .margin(15.dp)
+                    }
+                }
+                Row {
+                    Text("press X to activate surround program") {
                         modifier
                             .alignX(AlignmentX.Start)
                             .margin(15.dp)
@@ -175,6 +187,42 @@ class AiTester {
         }
     }
 
+    private fun Scene.loadSurroundPoints(){
+        val points=(entity2.programsList["Surround"] as SurroundTargetProgram).pathPoints
+        //creating the pathpoints meshes
+        for (point in (entity2.programsList["Surround"] as SurroundTargetProgram).pathPoints){
+            colorMesh {
+                generate {
+                    color=MdColor.DEEP_ORANGE
+                    icoSphere {
+                        radius=1.5f
+                        center.set(point.position)
+                    }
+                }
+                shader = KslPbrShader {
+                    color { vertexColor() }
+                }
+                onUpdate {
+                    this.transform.setTranslate(point.position)
+                }
+            }
+        }
+        /*colorMesh {
+            generate {
+                color=MdColor.DEEP_ORANGE
+                icoSphere {
+                    radius=1.5f
+                    center.set(points[0].position)
+                }
+            }
+            onUpdate {
+
+            }
+        }
+
+         */
+    }
+
     fun Scene.loadPhysicsWorld() {
         world = PhysicsWorld(this).apply {
             simStepper = stepper
@@ -186,11 +234,12 @@ class AiTester {
     fun Scene.loadEntities() {
         var material = Material(0.5f, 0.5f)
         val geom = SphereGeometry(2f)
-        var body1 = RigidDynamic().apply {
+        val body1 = RigidDynamic().apply {
             attachShape(Shape(geom, material))
-            position = Vec3f(-20f, 10f, 3f)
+            position = Vec3f(-3f, 10f, -10f)
         }
-        var body2 = RigidDynamic().apply {
+
+        val body2 = RigidDynamic().apply {
             attachShape(Shape(geom, material))
             position = Vec3f(10f, 10f, -3f)
             isTrigger = true
@@ -247,14 +296,17 @@ class AiTester {
         val followPath=FollowPathProgram(path, entity2, true)
         val matchSpeed=MatchSpeedProgram(entity2, entity1)
         val randomMovement=RandomMovementProgram(entity2)
+        val surround=SurroundTargetProgram(entity2, entity1, Vec3f.Z_AXIS)
+
         entity2.programsList[flee.id] = flee
         entity2.programsList[arrive.id]=arrive
         entity2.programsList[seek.id]=seek
         entity2.programsList[followPath.id]=followPath
         entity2.programsList[matchSpeed.id]=matchSpeed
         entity2.programsList[randomMovement.id]=randomMovement
+        entity2.programsList[surround.id]=surround
 
-        entity2.currentProgram =seek
+        entity2.currentProgram =surround
         //code to switch to the different programs
         KeyboardInput.addKeyListener(UniversalKeyCode('s'), "Activate seek", {true}){
             if (it.isPressed){
@@ -286,5 +338,11 @@ class AiTester {
                 entity2.currentProgram= entity2.programsList["Random"]
             }
         }
+        KeyboardInput.addKeyListener(UniversalKeyCode('x'), "Activate surround", {true}){
+            if (it.isPressed){
+                entity2.currentProgram= entity2.programsList["Surround"]
+            }
+        }
+
     }
 }

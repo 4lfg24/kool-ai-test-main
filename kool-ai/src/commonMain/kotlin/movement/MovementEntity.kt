@@ -9,7 +9,7 @@ open class MovementEntity(var body:RigidActor,var currentProgram: MovementProgra
     //position and speed variables
     var movementVelocity=MutableVec3f(0f,0f,0f)
     var maxSpeed=10f
-    var maxAcceleration=10f
+    var maxAcceleration=20f
 
     init {
         currentProgram?.let {

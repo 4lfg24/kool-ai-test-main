@@ -3,6 +3,13 @@ package movement
 import de.fabmax.kool.math.MutableVec3f
 import de.fabmax.kool.math.Vec3f
 
+/**
+ * Given a certain path (consisting of two or more points), this program
+ * will make the owner move from point to point, starting from the first one
+ *
+ * @param openPath if set to true the owner will traverse the path backwards
+ * once it reaches the last point
+ */
 class FollowPathProgram(var path:MutableList<Vec3f>, var owner:MovementEntity, var openPath:Boolean = false):MovementProgram("Follow Path") {
 
     //the distance after which the point is considered reached

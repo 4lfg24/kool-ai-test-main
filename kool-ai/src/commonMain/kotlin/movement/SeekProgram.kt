@@ -6,6 +6,10 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt
 
+/** This program makes the seeker move towards the target
+ * as fast as it's max acceleration allows it
+ *
+ */
 class SeekProgram(var seeker:MovementEntity, var target:MovementEntity):MovementProgram("Seek") {
 
 
